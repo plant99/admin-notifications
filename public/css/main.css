@@ -1,0 +1,45 @@
+
+*{
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Lato', 'sans-serif';
+}
+.topbar{
+    padding: 20px 20px;
+    background-color: aquamarine;
+}
+.category{
+    padding: 6px;
+    margin: 10px 0px;
+}
+.card{
+    margin: 10px 20px;
+    padding: 10px 20px;
+    background-color: azure;
+}
+.card-title{
+    background-color:rgb(240, 235, 225);
+    padding: 10px 0px;
+
+    border-radius: 5px;
+}
+.card-block input{
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+    margin:10px 0px;
+}
+.card-block h4,.card-block p, .card-block label{
+    padding: 5px;
+}
+.save:hover, .notify:hover{
+    cursor: pointer;
+}
+.filter{
+    font-size: 24px;
+}
+.category-filter{
+    padding: 5px;
+    font-size: 20px;
+}
