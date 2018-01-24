@@ -18,6 +18,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json({limit:'50mb'}));
 app.use(bodyParser.urlencoded({limit:'50mb'}));
 app.use(cookieParser());
+app.set('view engine', 'ejs');
+app.get('/', (req, res) => {
+  //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
+  res.render('index', {isAdmin: false});
+})
 app.use(express.static('public'));
 
 //dummy route

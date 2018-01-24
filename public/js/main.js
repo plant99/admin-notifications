@@ -1,5 +1,5 @@
 //fetch results
-let isAdmin = true;
+//let isAdmin = true;
 /**
  * 
  * let notifications = [
