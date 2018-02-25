@@ -56,7 +56,7 @@ function loadNotifications(notifications){
       </div>
     `;
     let notificationHTML = document.createElement('div');
-    notificationHTML.setAttribute('class', 'notification col-sm-4');
+    notificationHTML.setAttribute('class', 'notification  col-lg-4 col-md-6 col-sm-6 col-xs-12');
     notificationHTML.innerHTML = html;
     let notificationContainer = document.querySelector('.notifications-container');
     notificationContainer.appendChild(notificationHTML);
@@ -75,6 +75,9 @@ $('.create').click((e) => {
   let title = $('#create-card-title').val();
   let description = $('#create-card-description').val();
   let category = $('#category-create').val();
+  $('#create-card-title').val('');
+  $('#create-card-description').val('');
+  $('#category-create').val('');
   if(!title || !description || !category ){
     return;
   }
