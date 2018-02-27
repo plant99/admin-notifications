@@ -42,28 +42,69 @@
             <span class="col-sm-1"></span>
         </div>
         <div class="notifications-container row"></div>
-        <div class="create-container col-lg-4 col-md-6 col-sm-6 col-xs-12">
-            <div class="card">
-                <div class="card-block">
-                    <input class="col-sm-12" type="text" placeholder="Title" id="create-card-title" />
-                    <input class="col-sm-12" type="text" placeholder="Content" id="create-card-description" />
-                    <br>
-                    <label for="category-edit">Category: </label>
-                    <select id="category-create" class="category">
-                        <option value="exams">exams</option>
-                        <option value="vaccations">vaccations</option>
-                        <option value="celebrations">clebrations</option>
-                    </select>
-                    <br>
-                    <button class="btn btn-primary create">Create</button>
+        <div class="row">
+            <div class="create-container col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                <div class="card">
+                    <div class="card-block">
+                        <input class="col-sm-12" type="text" placeholder="Title" id="create-card-title" />
+                        <input class="col-sm-12" type="text" placeholder="Content" id="create-card-description" />
+                        <br>
+                        <label for="category-edit">Category: </label>
+                        <select id="category-create" class="category">
+                            <option value="exams">exams</option>
+                            <option value="vaccations">vaccations</option>
+                            <option value="celebrations">clebrations</option>
+                        </select>
+                        <br>
+                        <button class="btn btn-primary create">Create</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+            <%if(isAdmin){%>
+                <div class="add-category col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                    <div class="card">
+                        <h2>Add new category for notifications.</h2>
+                        <br>
+                        <input class="new-category" id="new_category" placeholder="Name of category" type="text"/>
+                        <br>&nbsp;
+                        <button class="btn btn-primary" id="save_new_category">ADD</button>
+                        <br>
+                    </div>
+                </div>
+            <%}else{%>  
+                <div class="mute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                    <div class="card">
+                        <h4>Mute categories</h4>
+                        <br>&nbsp;
+                        <div class="mute-box"></div>
+                        <br>&nbsp;
+                        <button class="btn btn-primary" id="save_mute">SAVE</button>
+                    </div>
+                </div>
+                <div class="unmute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                    <div class="card">
+                        <h4>Unmute categories</h4>
+                        <br>&nbsp;
+                        <div class="unmute-box" id="save_unmute_option"></div>
+                        <br>&nbsp;
+                        <button class="btn btn-primary" id="save_unmute">SAVE</button>
+                        <br>
+                    </div>
+                </div>
+
+                        
+            <%}%>
+        </div> 
+    </div> 
 
     <script>
-        let isAdmin = "<%= isAdmin %>";
-        isAdmin = (isAdmin === true);
+        //script necessary for server side rendering
+        let isAdmin = <%= isAdmin %>;
+        let url = "<%= url %>";
+        let port = "<%= port %>";
+        if(isAdmin == false){
+            $('.create-container').remove();
+        }
     </script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/vendor/jquery.min.js"></script>

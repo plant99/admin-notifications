@@ -1,39 +1,86 @@
-//fetch results
-//let isAdmin = true;
-/**
- * 
- * let notifications = [
-    { 
-      id: 1,
-      title: 'alpha',
-      content: 'beta',
-      category: 'exams'
-    },
-    {
-      id: 2,
-      title: 'alpha',
-      content: 'beta',
-      category: 'exams'
-    },
-    {
-      id: 3,
-      title: 'alpha',
-      content: 'beta',
-      category: 'exams'
-    }
-  ];
- */
-$.get('http://localhost:3002/get_notifications')
+let notifications = [],
+  categories = [],
+  muted_categories = [];
+
+$.get('http://'+url+':'+port+'/get_notifications')
   .done(data => {
-    console.log(data.notifications);
-    loadNotifications(data.notifications);
+    notifications = data.notifications;
+    $.get('http://'+url+':'+port+'/categories')
+      .done(data => {
+        categories = data.categories;
+        loadNotifications(notifications);
+        loadMuteUnmuteOptions();
+      })
+      .fail(err => {
+        console.log(err);
+      })
   })
   .fail(err => {
     console.log(err);
   })
 
+function loadMuteUnmuteOptions(){
 
-function loadNotifications(notifications){
+  $.get(`http://${url}:${port}/muted_categories?name=jgreen`)
+    .done(data => {
+      muted_categories = data.muted_topics;
+      loadMutedCategories(muted_categories);
+      loadUnmutedCategories(muted_categories);
+    })
+    .fail(err => {
+      console.log(err);
+    })
+}
+function loadMutedCategories(categoriesTemp){
+  let html = `<select class="unmute-select">`;
+  for(var i=0; i<categoriesTemp.length; i++){
+    html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
+  }
+  html += `</select>`
+  $('.unmute-box').html(html);
+  $('#save_unmute').click(() => {
+    $.post(`http://${url}:${port}/unmute`, {
+      name: "jgreen",
+      topic: $('.unmute-select').val()
+    })
+    .done(data => {
+      console.log(data);
+      $('.unmute-select').val('');
+    })
+    .fail(err => {
+      console.log(err);
+    });
+  });
+}
+function loadUnmutedCategories(muted_categories){
+  let categoriesTemp = categories;
+  for(var i=0; i< muted_categories.length; i++){
+    let x = categoriesTemp.indexOf(muted_categories[i]);
+    if(x!=-1){
+      categoriesTemp.splice(x, 1);
+    }
+  }
+  let html = `<select class="mute-select">`;
+  for(var i=0; i<categoriesTemp.length; i++){
+    html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
+  }
+  html += `</select>`;
+  $('.mute-box').html(html);
+  $('#save_mute').click(() => {
+    $.post(`http://${url}:${port}/mute`, {
+      name: "jgreen",
+      topic: $('.mute-select').val()
+    })
+    .done(data => {
+      console.log(data);
+      $('.mute-select').val('');
+    })
+    .fail(err => {
+      console.log(err);
+    });
+  });
+}
+function loadNotifications(notifications) {
   notifications.map(notification => {
     let html = `
       <div class="card">
@@ -41,35 +88,36 @@ function loadNotifications(notifications){
               <h4 class="card-title">${notification.title}</h4>
               <p class="card-text">${notification.description}</p>
               <label for="category-edit">Category: </label>
-              ${isAdmin?
-                `<select id="category-edit" class="category" value=${notification.category}>
-                  <option value="exams">exams</option>
-                  <option value="vacations">vacations</option>
-                  <option value="celebrations">clebrations</option>
-                </select>`:
-                `<span class="category">${notification.category}</span>`
-              }
-              <br>
-              <button data-id=${notification.id} class="btn btn-primary save">Save</button>
-              <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
+
+              <span class="category">${notification.category}</span>
           </div>
       </div>
     `;
+    /*
+      in case editing is required
+      ${isAdmin?
+        returnSelectOptionString(notification.category):
+      }
+      <br>
+      ${
+        isAdmin?
+        `<button data-id=${notification.id} class="btn btn-primary save">Save</button>
+        <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
+        ` : `<span class="category">${notification.category}</span>`
+      }
+    */
     let notificationHTML = document.createElement('div');
     notificationHTML.setAttribute('class', 'notification  col-lg-4 col-md-6 col-sm-6 col-xs-12');
     notificationHTML.innerHTML = html;
     let notificationContainer = document.querySelector('.notifications-container');
     notificationContainer.appendChild(notificationHTML);
-    console.log(notificationContainer, notificationHTML);
   })
 }
 $('.save').click((e) => {
   let notificationId = e.target.getAttribute('data-id');
-  console.log('save initiated', notificationId);
 });
 $('.notify').click((e) => {
   let notificationId = e.target.getAttribute('data-id');
-  console.log('Notify initiated', notificationId);
 });
 $('.create').click((e) => {
   let title = $('#create-card-title').val();
@@ -78,57 +126,93 @@ $('.create').click((e) => {
   $('#create-card-title').val('');
   $('#create-card-description').val('');
   $('#category-create').val('');
-  if(!title || !description || !category ){
+  if (!title || !description || !category) {
     return;
   }
-  $.post('http://localhost:3002/notification', {
-    title,
-    description,
-    category
-  })
+  $.post('http://'+url+':'+port+'/notification', {
+      title,
+      description,
+      category
+    })
     .done(data => {
       console.log(data);
+      location.reload();
     })
     .fail(err => {
       console.log(err);
+      location.reload();
     })
   //post to create notification, refresh page
 });
 $('.category-filter').change(() => {
   filterAndDisplayNotifications($('.category-filter').val());
 })
-function filterAndDisplayNotifications(value){
+
+function filterAndDisplayNotifications(value) {
   let notificationContainer = document.querySelector('.notifications-container');
   notificationContainer.innerHTML = '';
   notifications.map(notification => {
-    if((notification.category != value) && value != 'all'){
+    if ((notification.category != value) && value != 'all') {
       return;
     }
     let html = `
       <div class="card">
           <div class="card-block">
               <h4 class="card-title">${notification.title}</h4>
-              <p class="card-text">${notification.content}</p>
+              <p class="card-text">${notification.description}</p>
               <label for="category-edit">Category: </label>
               ${isAdmin?
-                `<select id="category-edit" class="category" value=${notification.category}>
-                  <option value="exams">exams</option>
-                  <option value="vacations">vacations</option>
-                  <option value="celebrations">clebrations</option>
-                </select>`:
+                returnSelectOptionString(notification.category)
+                :
                 `<span class="category">${notification.category}</span>`
               }
               <br>
-              <button data-id=${notification.id} class="btn btn-primary save">Save</button>
-              <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
+              ${
+                isAdmin?
+                `<button data-id=${notification.id} class="btn btn-primary save">Save</button>
+                <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
+                ` : ``
+              }
           </div>
       </div>
     `;
 
     let notificationHTML = document.createElement('div');
-    notificationHTML.setAttribute('class', 'notification col-sm-4');
+    notificationHTML.setAttribute('class', 'notification col-lg-4 col-md-6 col-sm-6 col-xs-12');
     notificationHTML.innerHTML = html;
     notificationContainer.appendChild(notificationHTML);
-    console.log(notificationContainer, notificationHTML);
   });
+
+}
+
+$('#save_new_category').click(() => {
+  let categoryName = $('#new_category').val();
+  console.log(categoryName);
+  $('#new_category').val('');
+  $.post('http://'+url+':'+port+'/category', {
+      name: categoryName
+    })
+    .done(data => {
+      console.log(data);
+    })
+    .fail(err => {
+      console.log(err);
+    })
+
+});
+
+function returnSelectOptionString(defaultValue) {
+  console.log(defaultValue);
+  let html = "";
+  html += `<select id="category-edit" class="category">`
+  for (i = 0; i < categories.length; i++) {
+    if(categories[i] === defaultValue){
+      html += `<option value="${categories[i]}" selected>${categories[i]}</option>`
+    }else{
+      html += `<option value="${categories[i]}">${categories[i]}</option>`
+    }
+  }
+  html += `</select>`
+  console.log(html);
+  return html;
 }

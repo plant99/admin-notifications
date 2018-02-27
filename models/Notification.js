@@ -8,11 +8,3 @@ module.exports = mongoose.model('notification', new Schema({
     type: String
   }
 }))
-/**
- *participants:[String],
-	messages:[{
-		author: String,
-		message: String,
-		timestamp: Date
-	}]
- */
