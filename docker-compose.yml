@@ -1,0 +1,15 @@
+# create a docker-compose.yml file
+version: "2"
+services:
+  web_notifications:
+    build: .
+    volumes:
+      - ./:/app
+    ports:
+      - "3002:3002"
+    links:
+      - mongo_notifications
+  mongo_notifications:
+    image: mongo
+    volumes:
+      - ./mongodata:/data
