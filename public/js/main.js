@@ -8,8 +8,7 @@ $.get('http://'+url+':'+port+'/get_notifications')
     $.get('http://'+url+':'+port+'/categories')
       .done(data => {
         categories = data.categories;
-        loadNotifications(notifications);
-        loadMuteUnmuteOptions();
+        loadMuteUnmuteOptions(notifications);
       })
       .fail(err => {
         console.log(err);
@@ -19,11 +18,12 @@ $.get('http://'+url+':'+port+'/get_notifications')
     console.log(err);
   })
 
-function loadMuteUnmuteOptions(){
+function loadMuteUnmuteOptions(notifications){
 
-  $.get(`http://${url}:${port}/muted_categories?name=jgreen`)
+  $.get(`http://${url}:${port}/muted_categories`)
     .done(data => {
       muted_categories = data.muted_topics;
+      loadNotifications(notifications);
       loadMutedCategories(muted_categories);
       loadUnmutedCategories(muted_categories);
     })
@@ -40,7 +40,6 @@ function loadMutedCategories(categoriesTemp){
   $('.unmute-box').html(html);
   $('#save_unmute').click(() => {
     $.post(`http://${url}:${port}/unmute`, {
-      name: "jgreen",
       topic: $('.unmute-select').val()
     })
     .done(data => {
@@ -68,7 +67,6 @@ function loadUnmutedCategories(muted_categories){
   $('.mute-box').html(html);
   $('#save_mute').click(() => {
     $.post(`http://${url}:${port}/mute`, {
-      name: "jgreen",
       topic: $('.mute-select').val()
     })
     .done(data => {
@@ -81,36 +79,42 @@ function loadUnmutedCategories(muted_categories){
   });
 }
 function loadNotifications(notifications) {
-  notifications.map(notification => {
-    let html = `
-      <div class="card">
-          <div class="card-block">
-              <h4 class="card-title">${notification.title}</h4>
-              <p class="card-text">${notification.description}</p>
-              <label for="category-edit">Category: </label>
 
-              <span class="category">${notification.category}</span>
-          </div>
-      </div>
-    `;
-    /*
-      in case editing is required
-      ${isAdmin?
-        returnSelectOptionString(notification.category):
-      }
-      <br>
-      ${
-        isAdmin?
-        `<button data-id=${notification.id} class="btn btn-primary save">Save</button>
-        <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
-        ` : `<span class="category">${notification.category}</span>`
-      }
-    */
-    let notificationHTML = document.createElement('div');
-    notificationHTML.setAttribute('class', 'notification  col-lg-4 col-md-6 col-sm-6 col-xs-12');
-    notificationHTML.innerHTML = html;
-    let notificationContainer = document.querySelector('.notifications-container');
-    notificationContainer.appendChild(notificationHTML);
+  console.log(muted_categories)
+  notifications.map(notification => {
+    if(muted_categories.indexOf(notification.category) == -1){
+      let html = `
+        <div class="card">
+            <div class="card-block">
+                <h4 class="card-title">${notification.title}</h4>
+                <p class="card-text">${notification.description}</p>
+                <label for="category-edit">Category: </label>
+
+                <span class="category">${notification.category}</span>
+            </div>
+        </div>
+      `;
+      /*
+        in case editing is required
+        ${isAdmin?
+          returnSelectOptionString(notification.category):
+        }
+        <br>
+        ${
+          isAdmin?
+          `<button data-id=${notification.id} class="btn btn-primary save">Save</button>
+          <button data-id=${notification.id} class="btn btn-primary notify">Notify</button>
+          ` : `<span class="category">${notification.category}</span>`
+        }
+      */
+      let notificationHTML = document.createElement('div');
+      notificationHTML.setAttribute('class', 'notification  col-lg-4 col-md-6 col-sm-6 col-xs-12');
+      notificationHTML.innerHTML = html;
+      let notificationContainer = document.querySelector('.notifications-container');
+      notificationContainer.appendChild(notificationHTML);
+    }else{
+      console.log(notification.category);
+    }
   })
 }
 $('.save').click((e) => {

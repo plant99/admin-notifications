@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
+    <title>Notifications</title>
 
     <!-- JQuery -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -35,9 +35,9 @@
             <h1 class="col-sm-8">Notification panel</h1>
             <select class="category-filter col-sm-2">
                 <option value="all">all</option>
-                <option value="exams">exams</option>
-                <option value="vaccations">vaccations</option>
-                <option value="celebrations">clebrations</option>
+                <% for(var i=0; i<categories.length; i++){ %>
+                  <option value="<%=categories[i]%>"><%=categories[i]%></option>  
+                <%}%>
             </select>
             <span class="col-sm-1"></span>
         </div>
@@ -51,9 +51,9 @@
                         <br>
                         <label for="category-edit">Category: </label>
                         <select id="category-create" class="category">
-                            <option value="exams">exams</option>
-                            <option value="vaccations">vaccations</option>
-                            <option value="celebrations">clebrations</option>
+                            <% for(var i=0; i<categories.length; i++){ %>
+                              <option value="<%=categories[i]%>"><%=categories[i]%></option>  
+                            <%}%>
                         </select>
                         <br>
                         <button class="btn btn-primary create">Create</button>
@@ -78,7 +78,7 @@
                         <br>&nbsp;
                         <div class="mute-box"></div>
                         <br>&nbsp;
-                        <button class="btn btn-primary" id="save_mute">SAVE</button>
+                        <button class="btn btn-primary" id="save_mute">MUTE</button>
                     </div>
                 </div>
                 <div class="unmute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
@@ -87,7 +87,7 @@
                         <br>&nbsp;
                         <div class="unmute-box" id="save_unmute_option"></div>
                         <br>&nbsp;
-                        <button class="btn btn-primary" id="save_unmute">SAVE</button>
+                        <button class="btn btn-primary" id="save_unmute">UNMUTE</button>
                         <br>
                     </div>
                 </div>

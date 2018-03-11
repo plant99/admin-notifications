@@ -27,34 +27,49 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
-  let name = req.params.name; //change as per needs
+  let name = req.headers['x-nitt-app-username']; //change as per needs
   User.findOne({
     name
   }, function(err, data){
     if(err){
       console.log(err);
     }else{
-      if(data){
-        //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
-        res.render('index', {
-          isAdmin: false,
-          url: config.url,
-          port: config.port
-        });
-      }else{
-        let user = new User({
-          name,
-          muted_topics: []
-        });
-        user.save(err => {
-          if(err) console.log(err); //send error page here
+      let isAdmin = (req.headers['x-nitt-app-is-admin'] === "true");
+      console.log(isAdmin, typeof(isAdmin));
+      Constant.findOne({
+        key: "categories"
+      })
+      .then(constant => {
+        console.log(constant);
+        let categories = constant.values;
+        if(data){
+          //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
           res.render('index', {
-            isAdmin: false,
+            isAdmin,
             url: config.url,
-            port: config.port
+            port: config.port,
+            categories
           });
-        })
-      }
+        }else{
+          let user = new User({
+            name,
+            muted_topics: []
+          });
+          user.save(err => {
+            if(err) console.log(err); //send error page here
+            res.render('index', {
+              isAdmin,
+              url: config.url,
+              port: config.port,
+              categories
+            });
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.json({success: false, message: "Server Error"});
+      })
     }
   })
 })
@@ -63,7 +78,6 @@ app.use(express.static('public'));
 app.get('/get_notifications', (req, res) => {
   //console.log(req.body);
   Notification.find({}, (err, notifications) => {
-    console.log(notifications);
     res.json({
       success: true,
       notifications
@@ -72,7 +86,7 @@ app.get('/get_notifications', (req, res) => {
 });
 
 app.get('/muted_categories', (req, res) => {
-  let name = req.query.name;
+  let name = req.headers['x-nitt-app-username'];
   if(!name){
     return res.json({success: false, message: "Pass proper params"});
   }
@@ -88,7 +102,7 @@ app.get('/muted_categories', (req, res) => {
   })
 });
 app.post('/mute', (req, res) => {
-  let name = req.body.name;
+  let name = req.headers['x-nitt-app-username'];
   let topic = req.body.topic;
   if(!name || !topic){
     return res.json({success: false, message: "Pass proper params"});
@@ -117,7 +131,7 @@ app.post('/mute', (req, res) => {
   });
 });
 app.post('/unmute', function(req, res){
-  let name = req.body.name;
+  let name = req.headers['x-nitt-app-username'];
   let topic = req.body.topic;
   User.findOne({
     name
@@ -146,6 +160,9 @@ app.post('/unmute', function(req, res){
   });
 })
 app.post('/notification', (req, res) => {
+  if(!req.headers['x-nitt-app-is-admin']){
+    return res.json({success: false, message: "Only admins can post stuffs!"});
+  }
   let title = req.body.title;
   let description = req.body.description;
   let category = req.body.category;
@@ -164,7 +181,7 @@ app.post('/notification', (req, res) => {
   });
 });
 app.post('/category', (req, res) => {
-  let name = req.body.name;
+  let name = req.body.name
   if (!name) {
     res.json({
       success: false,

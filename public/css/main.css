@@ -6,7 +6,8 @@
 }
 .topbar{
     padding: 20px 20px;
-    background-color: aquamarine;
+    background-color: #026670;
+    color: #ffffff;
 }
 .category{
     padding: 6px;
@@ -15,10 +16,9 @@
 .card{
     margin: 10px 20px;
     padding: 10px 20px;
-    background-color: azure;
+    background-color: #FFCB9A;
 }
 .card-title{
-    background-color:rgb(240, 235, 225);
     padding: 10px 0px;
 
     border-radius: 5px;
@@ -56,4 +56,10 @@
 }
 .add-category{
     height: 300px;
+}
+body{
+    background-color: #4bb091;
+}
+#category-create, .unmute-select, .mute-select{
+    padding: 5px;
 }
