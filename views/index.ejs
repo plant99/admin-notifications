@@ -51,10 +51,18 @@
     </div>
     <div class="tab-content">
         <!--Panel 1-->
-        <div class="tab-pane fade in show active" id="panel1" role="tabpanel">
+        <div class="tab-pane fade in show active row" id="panel1" role="tabpanel">
             <div class="container-fluid" id="view-wrapper">
                 
                 <div class="notifications-container row"></div>
+                
+            </div> 
+        </div>
+        <!--/.Panel 1-->
+        <!--Panel 2-->
+        <div class="tab-pane fade container-fluid row" id="panel2" role="tabpanel">
+            <div id="edit-wrapper">
+            <%if(isAdmin){%>
                 <div class="row">
                     <div class="create-container col-lg-4 col-md-6 col-sm-6 col-xs-12">
                         <div class="card">
@@ -73,43 +81,38 @@
                             </div>
                         </div>
                     </div>
-                    
-                </div> 
-            </div> 
-        </div>
-        <!--/.Panel 1-->
-        <!--Panel 2-->
-        <div class="tab-pane fade" id="panel2" role="tabpanel">
-            <div class="container-fluid" id="edit-wrapper">
-            <%if(isAdmin){%>
-                <div class="add-category col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                    <div class="card">
-                        <h2>Add new category for notifications.</h2>
-                        <br>
-                        <input class="new-category" id="new_category" placeholder="Name of category" type="text"/>
-                        <br>&nbsp;
-                        <button class="btn btn-primary" id="save_new_category">ADD</button>
-                        <br>
+                     
+                    <div class="add-category col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <h2>Add new category for notifications.</h2>
+                            <br>
+                            <input class="new-category" id="new_category" placeholder="Name of category" type="text"/>
+                            <br>&nbsp;
+                            <button class="btn btn-primary" id="save_new_category">ADD</button>
+                            <br>
+                        </div>
                     </div>
                 </div>
             <%}else{%>  
-                <div class="mute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                    <div class="card">
-                        <h4>Mute categories</h4>
-                        <br>&nbsp;
-                        <div class="mute-box"></div>
-                        <br>&nbsp;
-                        <button class="btn btn-primary" id="save_mute">MUTE</button>
+                <div class="row">
+                    <div class="mute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <h4>Mute categories</h4>
+                            <br>&nbsp;
+                            <div class="mute-box"></div>
+                            <br>&nbsp;
+                            <button class="btn btn-primary" id="save_mute">MUTE</button>
+                        </div>
                     </div>
-                </div>
-                <div class="unmute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                    <div class="card">
-                        <h4>Unmute categories</h4>
-                        <br>&nbsp;
-                        <div class="unmute-box" id="save_unmute_option"></div>
-                        <br>&nbsp;
-                        <button class="btn btn-primary" id="save_unmute">UNMUTE</button>
-                        <br>
+                    <div class="unmute-categories col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                        <div class="card">
+                            <h4>Unmute categories</h4>
+                            <br>&nbsp;
+                            <div class="unmute-box" id="save_unmute_option"></div>
+                            <br>&nbsp;
+                            <button class="btn btn-primary" id="save_unmute">UNMUTE</button>
+                            <br>
+                        </div>
                     </div>
                 </div>
 
