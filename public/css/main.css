@@ -5,13 +5,9 @@
     font-family: 'Lato', 'sans-serif';
 }
 .topbar{
-    padding: 20px 20px;
+    padding: 5px 5px;
     background-color: #026670;
     color: #ffffff;
-}
-.category{
-    padding: 6px;
-    margin: 10px 0px;
 }
 .card{
     margin: 10px 20px;
@@ -39,10 +35,6 @@
 .filter{
     font-size: 24px;
 }
-.category-filter{
-    padding: 5px;
-    font-size: 20px;
-}
 .create-container{
     margin:0px;
     padding: 0px;
@@ -60,6 +52,13 @@
 body{
     background-color: #4bb091;
 }
-#category-create, .unmute-select, .mute-select{
-    padding: 5px;
+#category-create, .unmute-select, .mute-select, .category-filter{
+    font-size: 14px;
+}
+.nav a{
+    color: white;
+}
+.category-filter{
+    margin-top: 5px;
+    margin-bottom: 5px;
 }

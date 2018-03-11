@@ -13,6 +13,7 @@ dbInit();
 const Notification = require('./models/Notification');
 const Constant = require('./models/Constant');
 const User = require('./models/User');
+
 const secretString = "I_am_aw3sOme";
 const app = express();
 const fs = require('fs');
