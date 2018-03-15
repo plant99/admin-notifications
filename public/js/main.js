@@ -1,18 +1,18 @@
 let notifications = [],
   categories = [],
   muted_categories = [];
-$.get('http://'+url+':'+port+'/get_notifications')
+$.get('/get_notifications')
   .done(data => {
     notifications = data.notifications;
     console.log(notifications);
-    $.get('http://'+url+':'+port+'/categories')
+    $.get('/categories')
       .done(data => {
         categories = data.categories;
         loadMuteUnmuteOptions(notifications);
 
-        $.get('http://'+url+':'+port+'/floating_tokens')
+        $.get('/floating_tokens')
           .done(data => {
-            renderTokens(data.notifications);
+            renderTokens(data.notifications || []);
           })
           .fail(err => {
             console.log(err);
@@ -52,7 +52,7 @@ function renderTokens(notifications){
   $('.approve').click(e => {
     let notif_id = $(e.target).attr('data-id');
     console.log(e.target);
-    $.post('http://'+url+':'+port+'/approve_token', {
+    $.post('/approve_token', {
       notif_id
     })
       .done(data => {
@@ -65,7 +65,7 @@ function renderTokens(notifications){
   $('.discard').click(e => {
     let notif_id = $(e.target).attr('data-id');
     console.log(e.target);
-    $.post('http://'+url+':'+port+'/discard_token', {
+    $.post('/discard_token', {
       notif_id
     })
       .done(data => {
@@ -78,7 +78,7 @@ function renderTokens(notifications){
 }
 function loadMuteUnmuteOptions(notifications){
 
-  $.get(`http://${url}:${port}/muted_categories`)
+  $.get('/muted_categories')
     .done(data => {
       muted_categories = data.muted_topics;
       loadNotifications(notifications);
@@ -97,7 +97,7 @@ function loadMutedCategories(categoriesTemp){
   html += `</select>`
   $('.unmute-box').html(html);
   $('#save_unmute').click(() => {
-    $.post(`http://${url}:${port}/unmute`, {
+    $.post(`/unmute`, {
       topic: $('.unmute-select').val()
     })
     .done(data => {
@@ -124,7 +124,7 @@ function loadUnmutedCategories(muted_categories){
   html += `</select>`;
   $('.mute-box').html(html);
   $('#save_mute').click(() => {
-    $.post(`http://${url}:${port}/mute`, {
+    $.post(`/mute`, {
       topic: $('.mute-select').val()
     })
     .done(data => {
@@ -193,20 +193,35 @@ $('.create').click((e) => {
   if (!title || !description || !category) {
     return;
   }
-  console.log(url, port)
-  $.post('http://'+url+':'+port+'/notification', {
-      title,
-      description,
-      category
-    })
-    .done(data => {
-      console.log(data);
-      location.reload();
-    })
-    .fail(err => {
-      console.log(err);
-      location.reload();
-    })
+  if(isAdmin){
+    $.post('/notification', {
+        title,
+        description,
+        category
+      })
+      .done(data => {
+        console.log(data);
+        location.reload();
+      })
+      .fail(err => {
+        console.log(err);
+        location.reload();
+      }) 
+  }else{
+    $.post('/notification_token', {
+        title,
+        description,
+        category
+      })
+      .done(data => {
+        console.log(data);
+        location.reload();
+      })
+      .fail(err => {
+        console.log(err);
+        location.reload();
+      })
+  }
   //post to create notification, refresh page
 });
 $('.category-filter').change(() => {
@@ -254,7 +269,7 @@ $('#save_new_category').click(() => {
   let categoryName = $('#new_category').val();
   console.log(categoryName);
   $('#new_category').val('');
-  $.post('http://'+url+':'+port+'/category', {
+  $.post('/category', {
       name: categoryName
     })
     .done(data => {

@@ -79,14 +79,16 @@ app.use(express.static('public'));
 app.get('/get_notifications', (req, res) => {
   //console.log(req.body);
   console.log(req.headers['x-nitt-app-username']);
-  Notification.find({status: true, to : ''}, (err, notifications) => {
-    Notification.find({status: false, to: req.headers['x-nitt-app-username']}, (err, sp_notifications) =>{
-      console.log(notifications, sp_notifications);
-      res.json({
-        success: true,
-        notifications: notifications.concat(sp_notifications)
-      });
-    })
+  Notification.find({
+    $or:[
+      {status: true, to : ''}, 
+      {status: false, to: req.headers['x-nitt-app-username']}
+    ]
+  }, (err, notifications) => {
+    res.json({
+      success: true,
+      notifications: notifications
+    });
   });
 });
 
@@ -168,20 +170,22 @@ app.post('/add_admin', (req, res) => {
   let name = req.body.name;
   let username = req.body.username;
   Constant.findOne({key: "admins"}, (err, constant) => {
-    if(err) return res.json({success: true, message : "ISE"});
+    if(err) return res.json({success: true, message : "Internal Server Error"});
     if(constant){
       let admins = constant.values || [];
+      if(admins.findIndex(value => value.username === username) != -1){
+        return res.json({success: false, message: "User is already admin"});
+      }
       admins.push({name, username});
       constant.values = admins;
       constant.save((err, saved) => {
         if(err){
-          return res.json({success: true, message : "ISE"});
+          return res.json({success: true, message : "Internal Server Error"});
         }else{
           res.json({success: true, message: "Admin added"});
         }
       })
     }else{
-      console.log("hey");
       res.json({success: true, message: 'sd'});
       //handle later the case when admins document doesn't exist at all
     }
@@ -191,33 +195,33 @@ app.post('/remove_admin', (req, res) => {
   let name = req.body.name;
   let username = req.body.username;
   Constant.findOne({key: "admins"}, (err, constant) => {
-    if(err) return res.json({success: true, message : "ISE"});
+    if(err) return res.json({success: true, message : "Internal Server Error"});
     if(constant){
       let admins = constant.values || [];
-      console.log(admins, {name, username});
-      if(admins.findIndex(x => x.username === username) === -1){
+      if(admins.findIndex(value => value.username === username) === -1){
         return res.json({success: false, message: "User doesn\'t exist"});
       }
-      admins.splice(admins.findIndex(x => x.username === username), 1);
+      admins.splice(admins.indexOf({name, username}), 1);
       constant.values = admins;
       constant.save((err, saved) => {
         if(err){
-          return res.json({success: true, message : "ISE"});
+          return res.json({success: true, message : "Internal Server Error"});
         }else{
           res.json({success: true, message: "Admin removed"});
         }
       })
     }else{
       //handle later the case when admins document doesn't exist at all
+      res.json({success: false, message: "User doesn\'t exist!"});
     }
   })
 })
 app.get('/floating_tokens', (req, res) => {
-  if(!req.headers['x-nitt-app-is-admin']){
+  if(req.headers['x-nitt-app-is-admin'] === "false"){
     return res.json({success: true, message: "You aren\'t authorized to come here"});
   }
   Notification.find({status: false, to:'' }, (err, notifications) => {
-    if(err) return res.json({success: false, message: "ISE"});
+    if(err) return res.json({success: false, message: "Internal Server Error"});
     res.json({success: true, notifications});
   })
 })
@@ -239,7 +243,7 @@ app.post('/notification_token', (req, res) => {
       to: '',
       author: req.headers['x-nitt-app-username']
     }, (err, data) => {
-      console.log(req.headers);
+      console.log(data, "hey sup?");
       res.json({success: true, message: 'Notification requested!'});
       Constant.findOne({key: "admins"}, (err, constant) => {
         let admins = constant.values;
@@ -274,7 +278,7 @@ app.post('/approve_token', (req, res) => {
     notification.status = 1;
     notification.to = '';
     notification.save(function(err, saved){
-      if(err) res.json({success: false, message: "ISE"});
+      if(err) res.json({success: false, message: "Internal Server Error"});
       else res.json({success: true, message: "approved"});
     });
   })
@@ -287,8 +291,8 @@ app.post('/discard_token', (req, res) => {
   });
 })
 app.post('/notification', (req, res) => {
-  if(!req.headers['x-nitt-app-is-admin']){
-    return res.json({success: false, message: "Only admins can post stuffs!"});
+  if(req.headers['x-nitt-app-is-admin'] === "false"){
+    return res.json({success: false, message: "Only admins can post notifications!"});
   }
   let title = req.body.title;
   let description = req.body.description;
