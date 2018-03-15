@@ -78,11 +78,15 @@ app.use(express.static('public'));
 
 app.get('/get_notifications', (req, res) => {
   //console.log(req.body);
-  Notification.find({}, (err, notifications) => {
-    res.json({
-      success: true,
-      notifications
-    });
+  console.log(req.headers['x-nitt-app-username']);
+  Notification.find({status: true, to : ''}, (err, notifications) => {
+    Notification.find({status: false, to: req.headers['x-nitt-app-username']}, (err, sp_notifications) =>{
+      console.log(notifications, sp_notifications);
+      res.json({
+        success: true,
+        notifications: notifications.concat(sp_notifications)
+      });
+    })
   });
 });
 
@@ -160,6 +164,128 @@ app.post('/unmute', function(req, res){
     }
   });
 })
+app.post('/add_admin', (req, res) => {
+  let name = req.body.name;
+  let username = req.body.username;
+  Constant.findOne({key: "admins"}, (err, constant) => {
+    if(err) return res.json({success: true, message : "ISE"});
+    if(constant){
+      let admins = constant.values || [];
+      admins.push({name, username});
+      constant.values = admins;
+      constant.save((err, saved) => {
+        if(err){
+          return res.json({success: true, message : "ISE"});
+        }else{
+          res.json({success: true, message: "Admin added"});
+        }
+      })
+    }else{
+      console.log("hey");
+      res.json({success: true, message: 'sd'});
+      //handle later the case when admins document doesn't exist at all
+    }
+  })
+})
+app.post('/remove_admin', (req, res) => {
+  let name = req.body.name;
+  let username = req.body.username;
+  Constant.findOne({key: "admins"}, (err, constant) => {
+    if(err) return res.json({success: true, message : "ISE"});
+    if(constant){
+      let admins = constant.values || [];
+      console.log(admins, {name, username});
+      if(admins.findIndex(x => x.username === username) === -1){
+        return res.json({success: false, message: "User doesn\'t exist"});
+      }
+      admins.splice(admins.findIndex(x => x.username === username), 1);
+      constant.values = admins;
+      constant.save((err, saved) => {
+        if(err){
+          return res.json({success: true, message : "ISE"});
+        }else{
+          res.json({success: true, message: "Admin removed"});
+        }
+      })
+    }else{
+      //handle later the case when admins document doesn't exist at all
+    }
+  })
+})
+app.get('/floating_tokens', (req, res) => {
+  if(!req.headers['x-nitt-app-is-admin']){
+    return res.json({success: true, message: "You aren\'t authorized to come here"});
+  }
+  Notification.find({status: false, to:'' }, (err, notifications) => {
+    if(err) return res.json({success: false, message: "ISE"});
+    res.json({success: true, notifications});
+  })
+})
+app.post('/notification_token', (req, res) => {
+  let title = req.body.title;
+  let description = req.body.description;
+  let category = req.body.category;
+  if (!(title && description && category)) {
+    res.json({
+      success: false,
+      message: 'Send proper parameters'
+    });
+  }else{
+    Notification.create({
+      title,
+      description,
+      category,
+      status: 0,
+      to: '',
+      author: req.headers['x-nitt-app-username']
+    }, (err, data) => {
+      console.log(req.headers);
+      res.json({success: true, message: 'Notification requested!'});
+      Constant.findOne({key: "admins"}, (err, constant) => {
+        let admins = constant.values;
+        console.log(admins);
+        let notifications = [];
+        for(var i=0; i< admins.length; i++){
+          console.log(admins[i]);
+          let notificationTemplate = {
+            title: 'Notification Request',
+            description: `${req.headers['x-nitt-app-name']} requested to add a notification, head to dashboard to approve it!`,
+            category: 'general', //?
+            to: admins[i],
+            author: '',
+            status: false
+          };
+          notifications.push(notificationTemplate);
+        }
+        Notification.create(notifications, function(err, notificationsCreated){
+          if(err){
+            console.log(err);
+          }
+        })
+      });
+      console.log(err, data);
+    });
+  }
+})
+app.post('/approve_token', (req, res) => {
+  let id = req.body.notif_id;
+  Notification.findById(id, (err, notification) => {
+    console.log(notification, id);
+    notification.status = 1;
+    notification.to = '';
+    notification.save(function(err, saved){
+      if(err) res.json({success: false, message: "ISE"});
+      else res.json({success: true, message: "approved"});
+    });
+  })
+})
+app.post('/discard_token', (req, res) => {
+  let id = req.body.notif_id;
+  Notification.deleteOne({_id: id}, (err, success) => {
+    console.log(err, success);
+    res.json({success: true, message: 'Deleted'});
+  });
+})
 app.post('/notification', (req, res) => {
   if(!req.headers['x-nitt-app-is-admin']){
     return res.json({success: false, message: "Only admins can post stuffs!"});
@@ -172,14 +298,20 @@ app.post('/notification', (req, res) => {
       success: false,
       message: 'Send proper parameters'
     });
+  }else{
+
+    Notification.create({
+      title,
+      description,
+      category,
+      status: 1,
+      to: '',
+      author: req.headers['x-nitt-app-username']
+    }, (err, data) => {
+      res.json({success: true, message: 'Notification added!'})
+      console.log(err, data);
+    }); 
   }
-  Notification.create({
-    title,
-    description,
-    category
-  }, (err, data) => {
-    console.log(err, data);
-  });
 });
 app.post('/category', (req, res) => {
   let name = req.body.name

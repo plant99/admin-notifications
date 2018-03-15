@@ -1,14 +1,22 @@
 let notifications = [],
   categories = [],
   muted_categories = [];
-
 $.get('http://'+url+':'+port+'/get_notifications')
   .done(data => {
     notifications = data.notifications;
+    console.log(notifications);
     $.get('http://'+url+':'+port+'/categories')
       .done(data => {
         categories = data.categories;
         loadMuteUnmuteOptions(notifications);
+
+        $.get('http://'+url+':'+port+'/floating_tokens')
+          .done(data => {
+            renderTokens(data.notifications);
+          })
+          .fail(err => {
+            console.log(err);
+          })
       })
       .fail(err => {
         console.log(err);
@@ -17,7 +25,57 @@ $.get('http://'+url+':'+port+'/get_notifications')
   .fail(err => {
     console.log(err);
   })
-
+function renderTokens(notifications){
+  let htmlToBeAppended = '';
+  for(var i=0; i< notifications.length; i++){
+    let notification = notifications[i];
+    let html = `
+      <div class="card">
+          <div class="card-block">
+              <h4 class="card-title">${notification.title}</h4>
+              <p class="card-text">${notification.description}</p>
+              <label for="category-edit">Category: </label>
+              ${isAdmin?
+                returnSelectOptionString(notification.category)
+                :
+                `<span class="category">${notification.category}</span>`
+              }
+              <br>
+              <button data-id=${notification._id} class="btn btn-primary approve">APPROVE</button>
+              <button data-id=${notification._id} class="btn btn-primary discard">DISCARD</button>
+          </div>
+      </div>
+    `;
+    htmlToBeAppended += html;
+  }
+  $('.tokens').html(htmlToBeAppended);
+  $('.approve').click(e => {
+    let notif_id = $(e.target).attr('data-id');
+    console.log(e.target);
+    $.post('http://'+url+':'+port+'/approve_token', {
+      notif_id
+    })
+      .done(data => {
+        console.log(data);
+      })
+      .fail(err => {
+        console.log(err);
+      });
+  })
+  $('.discard').click(e => {
+    let notif_id = $(e.target).attr('data-id');
+    console.log(e.target);
+    $.post('http://'+url+':'+port+'/discard_token', {
+      notif_id
+    })
+      .done(data => {
+        console.log(data);
+      })
+      .fail(err => {
+        console.log(err);
+      });
+  })
+}
 function loadMuteUnmuteOptions(notifications){
 
   $.get(`http://${url}:${port}/muted_categories`)
@@ -72,9 +130,11 @@ function loadUnmutedCategories(muted_categories){
     .done(data => {
       console.log(data);
       $('.mute-select').val('');
+      location.reload();
     })
     .fail(err => {
       console.log(err);
+      location.reload();
     });
   });
 }
@@ -133,6 +193,7 @@ $('.create').click((e) => {
   if (!title || !description || !category) {
     return;
   }
+  console.log(url, port)
   $.post('http://'+url+':'+port+'/notification', {
       title,
       description,
@@ -216,7 +277,7 @@ function returnSelectOptionString(defaultValue) {
       html += `<option value="${categories[i]}">${categories[i]}</option>`
     }
   }
-  html += `</select>`
-  console.log(html);
+  html += `</select>`;
+  //console.log(html);
   return html;
 }
