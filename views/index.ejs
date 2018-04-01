@@ -103,18 +103,17 @@
                     <div class="create-notif-token col-lg-4 col-md-6 col-sm-6 col-xs-12">
                         <div class="card">
                             <h4>Create Notification Request</h4>
-                            <br>&nbsp;
                             <input class="col-sm-12" type="text" placeholder="Title" id="create-card-title" />
-                            &nbsp;
-                            <br/>
                             <input class="col-sm-12" type="text" placeholder="Content" id="create-card-description" />
                             <br>
-                            <label for="category-edit">Category: </label>
-                            <select id="category-create" class="category">
-                                <% for(var i=0; i<categories.length; i++){ %>
-                                  <option value="<%=categories[i]%>"><%=categories[i]%></option>  
-                                <%}%>
-                            </select>
+                            <div class="element">
+                                <span >Category: </label>
+                                <select id="category-create" class="category">
+                                    <% for(var i=0; i<categories.length; i++){ %>
+                                      <option value="<%=categories[i]%>"><%=categories[i]%></option>  
+                                    <%}%>
+                                </select>
+                            </div>
                             <br>
                             <button class="btn btn-primary create">Create</button>
                         </div>

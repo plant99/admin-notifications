@@ -29,6 +29,9 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
   let name = req.headers['x-nitt-app-username']; //change as per needs
+  if(!name){
+    res.json({success: false, message: "Pass proper params!"});
+  }
   User.findOne({
     name
   }, function(err, data){
@@ -36,13 +39,12 @@ app.get('/', (req, res) => {
       console.log(err);
     }else{
       let isAdmin = (req.headers['x-nitt-app-is-admin'] === "true");
-      console.log(isAdmin, typeof(isAdmin));
       Constant.findOne({
         key: "categories"
       })
       .then(constant => {
         console.log(constant);
-        let categories = constant.values;
+        let categories =  !constant || constant.values === '' ? [] : constant.values;
         if(data){
           //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
           res.render('index', {
@@ -78,7 +80,7 @@ app.use(express.static('public'));
 
 app.get('/get_notifications', (req, res) => {
   //console.log(req.body);
-  console.log(req.headers['x-nitt-app-username']);
+  //console.log(req.headers['x-nitt-app-username']);
   Notification.find({
     $or:[
       {status: true, to : ''}, 
@@ -243,7 +245,6 @@ app.post('/notification_token', (req, res) => {
       to: '',
       author: req.headers['x-nitt-app-username']
     }, (err, data) => {
-      console.log(data, "hey sup?");
       res.json({success: true, message: 'Notification requested!'});
       Constant.findOne({key: "admins"}, (err, constant) => {
         let admins = constant.values;
@@ -328,7 +329,7 @@ app.post('/category', (req, res) => {
   Constant.findOne({
     key: 'categories'
   }, function (err, data) {
-
+    console.log(data);
     //handle error
     if (err) {
       console.log(err);
@@ -363,7 +364,7 @@ app.get('/categories', (req, res) => {
         message: 'Internal Server Error'
       });
     } else {
-      res.json({success: true, categories: data[0].values});
+      res.json({success: true, categories: !data[0] ? [] : data[0].values });
     }
   })
 })

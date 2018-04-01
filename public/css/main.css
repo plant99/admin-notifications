@@ -62,3 +62,11 @@ body{
     margin-top: 5px;
     margin-bottom: 5px;
 }
+.create-notif-token input{
+    margin-top: 4px;
+    padding-top: 2px;
+}
+.create-notif-token .element{
+    margin-top: 4px;
+    padding-top: 2px;
+}
