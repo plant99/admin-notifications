@@ -44,11 +44,7 @@ app.get('/', (req, res) => {
       })
       .then(constant => {
         console.log(constant);
-<<<<<<< HEAD
         let categories =  !constant || constant.values === '' ? [] : constant.values;
-=======
-        let categories = constant ? constant.values : [];
->>>>>>> 84179df5b115952e15982b9fb37288b41b2472d9
         if(data){
           //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
           res.render('index', {
