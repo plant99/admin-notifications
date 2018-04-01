@@ -90,12 +90,13 @@ function loadMuteUnmuteOptions(notifications){
     })
 }
 function loadMutedCategories(categoriesTemp){
-  let html = `<select class="unmute-select">`;
+  let html = `<select class="unmute-select mdb-select">`;
   for(var i=0; i<categoriesTemp.length; i++){
     html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
   }
   html += `</select>`
   $('.unmute-box').html(html);
+  $("select").material_select();
   $('#save_unmute').click(() => {
     $.post(`/unmute`, {
       topic: $('.unmute-select').val()
@@ -117,12 +118,13 @@ function loadUnmutedCategories(muted_categories){
       categoriesTemp.splice(x, 1);
     }
   }
-  let html = `<select class="mute-select">`;
+  let html = `<select class="mute-select mdb-select">`;
   for(var i=0; i<categoriesTemp.length; i++){
     html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
   }
   html += `</select>`;
   $('.mute-box').html(html);
+  $("select").material_select();
   $('#save_mute').click(() => {
     $.post(`/mute`, {
       topic: $('.mute-select').val()
@@ -225,7 +227,7 @@ $('.create').click((e) => {
   //post to create notification, refresh page
 });
 $('.category-filter').change(() => {
-  filterAndDisplayNotifications($('.category-filter').val());
+  filterAndDisplayNotifications($('select.category-filter').val());
 })
 
 function filterAndDisplayNotifications(value) {
@@ -261,6 +263,7 @@ function filterAndDisplayNotifications(value) {
     notificationHTML.setAttribute('class', 'notification col-lg-4 col-md-6 col-sm-6 col-xs-12');
     notificationHTML.innerHTML = html;
     notificationContainer.appendChild(notificationHTML);
+    $(notificationContainer).find("select").material_select();
   });
 
 }
@@ -274,6 +277,8 @@ $('#save_new_category').click(() => {
     })
     .done(data => {
       console.log(data);
+      if (data.success) location.reload();
+      else alert("Unable to create category");
     })
     .fail(err => {
       console.log(err);
@@ -284,7 +289,7 @@ $('#save_new_category').click(() => {
 function returnSelectOptionString(defaultValue) {
   console.log(defaultValue);
   let html = "";
-  html += `<select id="category-edit" class="category">`
+  html += `<select id="category-edit" class="category mdb-select">`
   for (i = 0; i < categories.length; i++) {
     if(categories[i] === defaultValue){
       html += `<option value="${categories[i]}" selected>${categories[i]}</option>`

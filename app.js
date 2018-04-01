@@ -44,7 +44,11 @@ app.get('/', (req, res) => {
       })
       .then(constant => {
         console.log(constant);
+<<<<<<< HEAD
         let categories =  !constant || constant.values === '' ? [] : constant.values;
+=======
+        let categories = constant ? constant.values : [];
+>>>>>>> 84179df5b115952e15982b9fb37288b41b2472d9
         if(data){
           //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
           res.render('index', {
@@ -338,9 +342,11 @@ app.post('/category', (req, res) => {
         message: 'Server error!'
       })
     }
+    data = data && data.values ? data : new Constant({ key: "categories", values: [] });
     data.values.push(name);
     data.save((err) => {
       if (err) {
+        console.log(err);
         return res.json({
           success: false,
           message: 'Internal Server Error'
@@ -364,7 +370,8 @@ app.get('/categories', (req, res) => {
         message: 'Internal Server Error'
       });
     } else {
-      res.json({success: true, categories: !data[0] ? [] : data[0].values });
+      data = (data && data.length) ? data[0].values : [];
+      res.json({success: true, categories: data});
     }
   })
 })

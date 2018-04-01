@@ -14,12 +14,13 @@
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/main.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+ 
   </head>
   <body>
         
     <div class="topbar row">
         <h1 class="col-sm-8">Notification panel</h1>
-        <select  class="category-filter col-sm-2">
+        <select  class="category-filter select-field">
             <option value="all">all</option>
             <option value="exams">exams</option>
             <option value="vaccations">vaccations</option>
@@ -35,7 +36,7 @@
                 <input class="col-sm-12" type="text" placeholder="Content" id="create-card-description"/>
                 <br>
                 <label for="category-edit">Category: </label>
-                <select id="category-create" class="category">
+                <select id="category-create" class="category mdb-select">
                     <option value="exams">exams</option>
                     <option value="vaccations">vaccations</option>
                     <option value="celebrations">clebrations</option>
