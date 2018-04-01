@@ -8,6 +8,8 @@
     padding: 5px 5px;
     background-color: #026670;
     color: #ffffff;
+    margin-top: -5px;
+    height: 55px;
 }
 .card{
     margin: 10px 20px;
