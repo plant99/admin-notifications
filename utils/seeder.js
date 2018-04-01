@@ -40,6 +40,20 @@ db.once('open',function(){
 			})
 		}
 	})
+	Constant.findOne({
+		key: 'admins'
+	}, (err, value) => {
+		if(err){console.log(err);}
+		if(!value){
+			console.log(username, name);
+			Constant.create({
+				key: 'admins',
+				values:[{name, username}]
+			}, (err, data) => {
+				if(err) console.log(err);
+			})
+		}
+	})
 })
 
 

@@ -27,54 +27,56 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
+
 app.get('/', (req, res) => {
   let name = req.headers['x-nitt-app-username']; //change as per needs
   if(!name){
     res.json({success: false, message: "Pass proper params!"});
-  }
-  User.findOne({
-    name
-  }, function(err, data){
-    if(err){
-      console.log(err);
-    }else{
-      let isAdmin = (req.headers['x-nitt-app-is-admin'] === "true");
-      Constant.findOne({
-        key: "categories"
-      })
-      .then(constant => {
-        console.log(constant);
-        let categories =  !constant || constant.values === '' ? [] : constant.values;
-        if(data){
-          //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
-          res.render('index', {
-            isAdmin,
-            url: config.url,
-            port: config.port,
-            categories
-          });
-        }else{
-          let user = new User({
-            name,
-            muted_topics: []
-          });
-          user.save(err => {
-            if(err) console.log(err); //send error page here
+  }else{
+    User.findOne({
+      name
+    }, function(err, data){
+      if(err){
+        console.log(err);
+      }else{
+        let isAdmin = (req.headers['x-nitt-app-is-admin'] === "true");
+        Constant.findOne({
+          key: "categories"
+        })
+        .then(constant => {
+          console.log(constant);
+          let categories =  !constant || constant.values === '' ? [] : constant.values;
+          if(data){
+            //res.render('index', {isAdmin: req.body.X_USER_IS_ADMIN});
             res.render('index', {
               isAdmin,
               url: config.url,
               port: config.port,
               categories
             });
-          })
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        res.json({success: false, message: "Server Error"});
-      })
-    }
-  })
+          }else{
+            let user = new User({
+              name,
+              muted_topics: []
+            });
+            user.save(err => {
+              if(err) console.log(err); //send error page here
+              res.render('index', {
+                isAdmin,
+                url: config.url,
+                port: config.port,
+                categories
+              });
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          res.json({success: false, message: "Server Error"});
+        })
+      }
+    })   
+  }
 })
 app.use(express.static('public'));
 
@@ -275,7 +277,6 @@ app.post('/notification_token', (req, res) => {
 app.post('/approve_token', (req, res) => {
   let id = req.body.notif_id;
   Notification.findById(id, (err, notification) => {
-    console.log(notification, id);
     notification.status = 1;
     notification.to = '';
     notification.save(function(err, saved){
@@ -287,7 +288,6 @@ app.post('/approve_token', (req, res) => {
 app.post('/discard_token', (req, res) => {
   let id = req.body.notif_id;
   Notification.deleteOne({_id: id}, (err, success) => {
-    console.log(err, success);
     res.json({success: true, message: 'Deleted'});
   });
 })
