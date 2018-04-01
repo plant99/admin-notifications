@@ -5,7 +5,7 @@ const Notification = require('../models/Notification');
 const Constant = require('../models/Constant');
 const User = require('../models/User');
 module.exports = function(){
-	mongoose.connect('mongodb://mongo_notifications/admin_notifications') ;
+	mongoose.connect('mongodb://localhost/admin_notifications') ;
 	var db = mongoose.connection ;
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open',function(){

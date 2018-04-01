@@ -115,7 +115,9 @@ app.get('/muted_categories', (req, res) => {
 app.post('/mute', (req, res) => {
   let name = req.headers['x-nitt-app-username'];
   let topic = req.body.topic;
+  console.log(name, topic, req.headers, req.body);
   if(!name || !topic){
+    console.log('hey');
     return res.json({success: false, message: "Pass proper params"});
   }
   User.findOne({

@@ -1,3 +1,19 @@
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/js/worker.js')
+    .then((registration) => {
+      console.log('Service Worker registration completed with scope: ',
+        registration.scope)
+    }, (err) => {
+      console.log('Service Worker registration failed', err)
+    })
+  })
+} else {
+  console.log('Service Workers not supported')
+}
+
+
+
 let notifications = [],
   categories = [],
   muted_categories = [];
@@ -57,9 +73,11 @@ function renderTokens(notifications){
     })
       .done(data => {
         console.log(data);
+        location.reload();
       })
       .fail(err => {
         console.log(err);
+        location.reload();
       });
   })
   $('.discard').click(e => {
@@ -70,9 +88,11 @@ function renderTokens(notifications){
     })
       .done(data => {
         console.log(data);
+        location.reload();
       })
       .fail(err => {
         console.log(err);
+        location.reload();
       });
   })
 }
@@ -90,7 +110,7 @@ function loadMuteUnmuteOptions(notifications){
     })
 }
 function loadMutedCategories(categoriesTemp){
-  let html = `<select class="unmute-select mdb-select">`;
+  let html = `<select class="unmute-select" id="unmute-select">`;
   for(var i=0; i<categoriesTemp.length; i++){
     html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
   }
@@ -99,11 +119,11 @@ function loadMutedCategories(categoriesTemp){
   $("select").material_select();
   $('#save_unmute').click(() => {
     $.post(`/unmute`, {
-      topic: $('.unmute-select').val()
+      topic: document.getElementById('unmute-select').value
     })
     .done(data => {
       console.log(data);
-      $('.unmute-select').val('');
+      document.getElementById('mute-select').value = '';
     })
     .fail(err => {
       console.log(err);
@@ -118,7 +138,7 @@ function loadUnmutedCategories(muted_categories){
       categoriesTemp.splice(x, 1);
     }
   }
-  let html = `<select class="mute-select mdb-select">`;
+  let html = `<select class="mute-select" id="mute-select">`;
   for(var i=0; i<categoriesTemp.length; i++){
     html += `<option value="${categoriesTemp[i]}">${categoriesTemp[i]}</option>`
   }
@@ -127,11 +147,11 @@ function loadUnmutedCategories(muted_categories){
   $("select").material_select();
   $('#save_mute').click(() => {
     $.post(`/mute`, {
-      topic: $('.mute-select').val()
+      topic: document.getElementById('mute-select').value
     })
     .done(data => {
       console.log(data);
-      $('.mute-select').val('');
+      document.getElementById('mute-select').value = '';
       location.reload();
     })
     .fail(err => {
@@ -289,7 +309,7 @@ $('#save_new_category').click(() => {
 function returnSelectOptionString(defaultValue) {
   console.log(defaultValue);
   let html = "";
-  html += `<select id="category-edit" class="category mdb-select">`
+  html += `<select id="category-edit" class="category">`
   for (i = 0; i < categories.length; i++) {
     if(categories[i] === defaultValue){
       html += `<option value="${categories[i]}" selected>${categories[i]}</option>`
