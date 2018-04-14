@@ -8,6 +8,11 @@ const bodyParser = require('body-parser');
 const childProcess = require('child_process');
 const config = require('./config');
 //impotrt from somewhere
+var admin = require('firebase-admin');
+admin.initializeApp({
+  credential: admin.credential.cert(config.firebase_config.serviceAccount),
+  databaseURL: "https://admin-notifications-7d944.firebaseio.com"
+});
 const dbInit = require('./utils/dbInit');
 dbInit();
 const Notification = require('./models/Notification');
@@ -17,6 +22,8 @@ const User = require('./models/User');
 const secretString = "I_am_aw3sOme";
 const app = express();
 const fs = require('fs');
+
+
 app.use(favicon());
 app.use(logger('dev'));
 app.use(bodyParser.json({
@@ -166,6 +173,8 @@ app.post('/unmute', function(req, res){
             res.json({success: false, message: "Internal Server Error"});
           }else{
             res.json({success: true, message: "Preference saved!"});
+            console.log('Successfully subscribed to topic:', response);
+            //
           }
         })
       }
@@ -285,12 +294,16 @@ app.post('/approve_token', (req, res) => {
       if(err) res.json({success: false, message: "Internal Server Error"});
       else res.json({success: true, message: "approved"});
     });
+    addNotificationToFirebase(notification);
+    //add notification to group
+    //send indivisual notification to user
   })
 })
 app.post('/discard_token', (req, res) => {
   let id = req.body.notif_id;
   Notification.deleteOne({_id: id}, (err, success) => {
     res.json({success: true, message: 'Deleted'});
+    //send reject notification to user
   });
 })
 app.post('/notification', (req, res) => {
@@ -306,21 +319,24 @@ app.post('/notification', (req, res) => {
       message: 'Send proper parameters'
     });
   }else{
-
-    Notification.create({
+    //add notification to firebase
+    const notification = {
       title,
       description,
       category,
       status: 1,
       to: '',
       author: req.headers['x-nitt-app-username']
-    }, (err, data) => {
+    };
+    Notification.create(notification, (err, data) => {
       res.json({success: true, message: 'Notification added!'})
+      addNotificationToFirebase(notification);
       console.log(err, data);
     }); 
   }
 });
 app.post('/category', (req, res) => {
+  //subscribe everyone to this category
   let name = req.body.name
   if (!name) {
     res.json({
@@ -387,3 +403,28 @@ app.use(function (req, res, next) {
 
 
 app.listen(3002);
+
+
+function addNotificationToFirebase(notification){
+  //` The topic name can be optionally prefixed with "/topics/".
+  var topic = notification.category;
+  
+  // See documentation on defining a message payload.
+  var message = {
+    data: {
+      topic,
+      title: notification.title,
+      description: notification.description
+    },
+    topic
+  };
+  
+  // Send a message to devices subscribed to the provided topic.
+  admin.messaging().send(message)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+    });
+}

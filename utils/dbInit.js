@@ -36,7 +36,7 @@ module.exports = function(){
 					muted_topics: []
 				}, function(err, data){
 					console.log(data);
-					if(err) console.log(err); 
+					if(err) console.log(err);
 				})
 			}
 		})
@@ -55,4 +55,4 @@ module.exports = function(){
 			}
 		})
 }
- 
+

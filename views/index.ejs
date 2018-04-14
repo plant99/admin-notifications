@@ -20,7 +20,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-
+    <link rel="manifest" href="/manifest.json">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Material Design Bootstrap -->
@@ -169,8 +169,22 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/vendor/bootstrap.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <script src="js/main.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyAEsKuezyGIQ_URe8xzc65rhePtU2Ezl7c",
+        authDomain: "admin-notifications-7d944.firebaseapp.com",
+        databaseURL: "https://admin-notifications-7d944.firebaseio.com",
+        projectId: "admin-notifications-7d944",
+        storageBucket: "",
+        messagingSenderId: "865456359946"
+      };
+      firebase.initializeApp(config);
+    </script>
                 
 </body>
 
