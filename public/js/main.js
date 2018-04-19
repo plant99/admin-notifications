@@ -12,7 +12,21 @@ if ('serviceWorker' in navigator) {
   console.log('Service Workers not supported')
 }
 
-
+if(firstTime){
+  if(window.NotificationToken.getNotificationToken){
+    token = window.NotificationToken.getNotificationToken();
+    
+    $.post('/subscribe_all', {
+      token
+    })
+    .done(data => {
+      console.log(data);
+    })
+    .fail(err => {
+      console.log(err);
+    })
+  }
+}
 
 let notifications = [],
   categories = [],
@@ -24,6 +38,7 @@ $.get('/get_notifications')
     $.get('/categories')
       .done(data => {
         categories = data.categories;
+        //if logged in first, subscribe to every channels
         loadMuteUnmuteOptions(notifications);
 
         $.get('/floating_tokens')

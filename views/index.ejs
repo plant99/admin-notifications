@@ -163,6 +163,7 @@
         if(isAdmin == false){
             $('.create-container').remove();
         }
+        const firstTime = <%= firstTime %>
     </script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/vendor/jquery.min.js"></script>
@@ -171,8 +172,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <script src="js/main.js"></script>
-    
+
     <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-messaging.js"></script>
     <script>
       // Initialize Firebase
       var config = {
@@ -184,6 +186,24 @@
         messagingSenderId: "865456359946"
       };
       firebase.initializeApp(config);
+      const messaging = firebase.messaging();
+      let token = '';
+      messaging.requestPermission()
+      .then(function(){
+        console.log("have permission");
+        return messaging.getToken();
+      })
+      .then(function(t) {
+        console.log(t)
+        token = t;
+      })
+      .catch(function(err){
+        console.log("Error");
+      })
+
+      messaging.onMessage(function(payload) {
+        console.log('onMessage: ', payload);
+      })
     </script>
                 
 </body>

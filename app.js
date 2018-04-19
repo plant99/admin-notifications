@@ -59,7 +59,8 @@ app.get('/', (req, res) => {
               isAdmin,
               url: config.url,
               port: config.port,
-              categories
+              categories,
+              firstTime: false
             });
           }else{
             let user = new User({
@@ -72,7 +73,8 @@ app.get('/', (req, res) => {
                 isAdmin,
                 url: config.url,
                 port: config.port,
-                categories
+                categories,
+                firstTime: true
               });
             })
           }
@@ -142,6 +144,7 @@ app.post('/mute', (req, res) => {
             res.json({success: false, message: "Internal Server Error"});
           }else{
             res.json({success: true, message: "Preference saved!"});
+            //subscribe user to a specific topic
           }
         })
       }else{
@@ -174,7 +177,7 @@ app.post('/unmute', function(req, res){
           }else{
             res.json({success: true, message: "Preference saved!"});
             console.log('Successfully subscribed to topic:', response);
-            //
+            //unsubscribe user from a specific topic
           }
         })
       }
@@ -331,6 +334,25 @@ app.post('/notification', (req, res) => {
     Notification.create(notification, (err, data) => {
       res.json({success: true, message: 'Notification added!'})
       addNotificationToFirebase(notification);
+      var message = {
+        data: {
+          score: '850',
+          time: '2:45'
+        },
+        token: "daIshKnLqzw:APA91bEz0t2qOu0VjXhauadLYuUt7pJHjgqj7PIc0steLwpJx23qrCJBSf18wm4dPbA5WnWrwCRUAYygP0L5St4mo-rMh9ouMe8dkFPXv-x4T6s3waztDGsMo7o4ZhsguHyD3Fsm1i4W"
+      };
+
+      // Send a message to the device corresponding to the provided
+      // registration token.
+      admin.messaging().send(message)
+        .then((response) => {
+          // Response is a message ID string.
+          console.log('Successfully sent message:', response);
+        })
+        .catch((error) => {
+          console.log('Error sending message:', error);
+        });
+
       console.log(err, data);
     }); 
   }
@@ -386,6 +408,36 @@ app.get('/categories', (req, res) => {
     } else {
       data = (data && data.length) ? data[0].values : [];
       res.json({success: true, categories: data});
+    }
+  })
+})
+
+app.post('/subscribe_all', function(req, res){
+  Constant.find({
+    key: "categories"
+  }, function (err, data) {
+    if (err) {
+      res.json({
+        success: false,
+        message: 'Internal Server Error'
+      });
+    } else {
+      User.update({
+        name:req.headers['x-nitt-app-username']
+      },{
+        device_token: req.body.token
+      }, (err, data) => {
+        if(!err){
+          data = (data && data.length) ? data[0].values : [];
+          for(let i=0; i<data.length; i++){
+            //subscribe to each topic
+          }
+          //wait for promises to resolve
+          //following response is dummy
+          res.json({success: true})
+        }
+      })
+      
     }
   })
 })
