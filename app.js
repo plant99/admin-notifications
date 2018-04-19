@@ -144,8 +144,23 @@ app.post('/mute', (req, res) => {
             console.log(err); 
             res.json({success: false, message: "Internal Server Error"});
           }else{
-            res.json({success: true, message: "Preference saved!"});
             //subscribe user to a specific topic
+            // These registration tokens come from the client FCM SDKs.
+            const registrationTokens = [
+              data.device_token
+            ];
+
+            // Subscribe the devices corresponding to the registration tokens to the
+            // topic.
+            admin.messaging().unsubscribeFromTopic(registrationTokens, topic)
+              .then(function(response) {
+                console.log('Successfully subscribed to topic:', response);
+                res.json({success: true, message: "Preference saved!"});
+              })
+              .catch(function(error) {
+                console.log('Error subscribing to topic:', error);
+              });
+
           }
         })
       }else{
@@ -176,9 +191,21 @@ app.post('/unmute', function(req, res){
             console.log(err); 
             res.json({success: false, message: "Internal Server Error"});
           }else{
-            res.json({success: true, message: "Preference saved!"});
-            console.log('Successfully subscribed to topic:', response);
             //unsubscribe user from a specific topic
+            const registrationTokens = [
+              data.device_token
+            ];
+
+            // Subscribe the devices corresponding to the registration tokens to the
+            // topic.
+            admin.messaging().unsubscribeFromTopic(registrationTokens, topic)
+              .then(function(response) {
+                res.json({success: true, message: "Preference saved!"});
+                console.log('Successfully subscribed to topic:', response);
+              })
+              .catch(function(error) {
+                console.log('Error subscribing to topic:', error);
+              });
           }
         })
       }
