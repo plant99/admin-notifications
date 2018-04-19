@@ -12,8 +12,12 @@ if ('serviceWorker' in navigator) {
   console.log('Service Workers not supported')
 }
 
+
 if(firstTime){
-  if(window.NotificationToken.getNotificationToken){
+
+}
+//the following if was inside the above if
+if(window.NotificationToken.getNotificationToken){
     token = window.NotificationToken.getNotificationToken();
     
     $.post('/subscribe_all', {
@@ -26,7 +30,6 @@ if(firstTime){
       console.log(err);
     })
   }
-}
 
 let notifications = [],
   categories = [],

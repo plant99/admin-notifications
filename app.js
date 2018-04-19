@@ -450,45 +450,56 @@ app.post('/subscribe_all', function(req, res){
         message: 'Internal Server Error'
       });
     } else {
-      User.update({
-        name:req.headers['x-nitt-app-username']
-      },{
-        device_token: req.body.token
-      }, (err, user) => {
-        if(!err){
-          data = (data && data.length) ? data[0].values : [];
-          // These registration tokens come from the client FCM SDKs.
-          let registrationTokens = [
-            user.admin_token
-          ];
+      User.findOne({
+        name:req.headers['x-nitt-app-username'] 
+      }, function(err, user){
+        if(err){
+          console.log(err);
+        }
+        if(user.device_token == req.body.token){
+          return res.json({success: true, message: "No update required for now!"});
+        }else{
+          User.update({
+            name:req.headers['x-nitt-app-username']
+          },{
+            device_token: req.body.token
+          }, (err, user) => {
+            if(!err){
+              data = (data && data.length) ? data[0].values : [];
+              // These registration tokens come from the client FCM SDKs.
+              let registrationTokens = [
+                user.admin_token
+              ];
 
-          // Subscribe the devices corresponding to the registration tokens to the
-          // topic.
-          let promisesP = [];
+              // Subscribe the devices corresponding to the registration tokens to the
+              // topic.
+              let promisesP = [];
 
-          for(let i=0; i<data.length; i++){
-            //subscribe to each topic
-            let x = admin.messaging().subscribeToTopic(registrationTokens, data[i])
-              .then(function(response) {
-                // See the MessagingTopicManagementResponse reference documentation
-                // for the contents of response.
-                console.log('Successfully subscribed to topic:', response);
+              for(let i=0; i<data.length; i++){
+                //subscribe to each topic
+                let x = admin.messaging().subscribeToTopic(registrationTokens, data[i])
+                  .then(function(response) {
+                    // See the MessagingTopicManagementResponse reference documentation
+                    // for the contents of response.
+                    console.log('Successfully subscribed to topic:', response);
+                  })
+                  .catch(function(error) {
+                    console.log('Error subscribing to topic:', error);
+                  });
+                promisesP.push(x);
+              }
+              Promise.all(promisesP)
+              .then(data => {
+                console.log("First handler", data);
               })
-              .catch(function(error) {
-                console.log('Error subscribing to topic:', error);
+              .catch(err => {
+                console.log("Error", err);
               });
-            promisesP.push(x);
-          }
-          Promise.all(promisesP)
-          .then(data => {
-            console.log("First handler", data);
+              //wait for promises to resolve
+              //following response is dummy
+              res.json({success: true})
+            }
           })
-          .catch(err => {
-            console.log("Error", err);
-          });
-          //wait for promises to resolve
-          //following response is dummy
-          res.json({success: true})
         }
       })
       
