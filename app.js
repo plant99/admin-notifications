@@ -326,8 +326,13 @@ app.post('/approve_token', (req, res) => {
       else res.json({success: true, message: "approved"});
     });
     addNotificationToFirebase(notification);
+    User.findOne({username: notification.author}, function(err, user){
+      if(err){console.log(err);}
+      addNotificationToUser(notification, user.token);
+    })
     //add notification to group
-    //send indivisual notification to user
+    //send individual notification to user
+
   })
 })
 app.post('/discard_token', (req, res) => {
@@ -534,6 +539,28 @@ function addNotificationToFirebase(notification){
       description: notification.description
     },
     topic
+  };
+  
+  // Send a message to devices subscribed to the provided topic.
+  admin.messaging().send(message)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+    });
+}
+
+
+function addNotificationToUser(notification, token){
+  var topic = notification.category;
+  var message = {
+    data: {
+      topic,
+      title: notification.title,
+      description: notification.description
+    },
+    token
   };
   
   // Send a message to devices subscribed to the provided topic.

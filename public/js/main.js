@@ -17,7 +17,7 @@ if(firstTime){
 
 }
 //the following if was inside the above if
-if(window.NotificationToken.getNotificationToken){
+if(window.NotificationToken){if(window.NotificationToken.getNotificationToken){
     token = window.NotificationToken.getNotificationToken();
     
     $.post('/subscribe_all', {
@@ -29,7 +29,7 @@ if(window.NotificationToken.getNotificationToken){
     .fail(err => {
       console.log(err);
     })
-  }
+  }}
 
 let notifications = [],
   categories = [],
@@ -255,6 +255,7 @@ $('.create').click((e) => {
       })
       .done(data => {
         console.log(data);
+        alert('The notification would be published once the admin approves!');
         location.reload();
       })
       .fail(err => {
